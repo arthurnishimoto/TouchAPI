@@ -43,8 +43,8 @@ package tacTile.net;
  */
 public class Touches {
 
-	String timeStamp;
 	int finger;
+	long timeStamp;
 	float xPos, yPos, intensity;
 
 	/**
@@ -61,7 +61,7 @@ public class Touches {
 	 * @param intensity 
 	 *            the intensity of the touch Range btn 0 and 1        
 	 */
-	Touches( String timeStamp, int finger, float xPos, float yPos, float intensity) {
+	Touches( long timeStamp, int finger, float xPos, float yPos, float intensity) {
 		this.timeStamp = timeStamp;
 		this.finger = finger;
 		this.xPos = xPos;
@@ -84,7 +84,7 @@ public class Touches {
 	 *            the intensity of the touch Range btn 0 and 1        
 	 */
 	Touches( ) {
-		this.timeStamp = null;
+		this.timeStamp = 0;
 		this.finger = 0;
 		this.xPos = 0;
 		this.yPos = 0;
@@ -95,10 +95,10 @@ public class Touches {
 	 * Returns the timeStamp for the touch
 	 * @return string
 	 */
-	public String getTimeStamp() {
+	public long getTimeStamp() {
 		return timeStamp;
 	}
-
+	
 	/**
 	 * Returns the finger id for the touch
 	 * @return int
@@ -130,5 +130,46 @@ public class Touches {
 	public float getIntensity() {
 		return intensity;
 	}
+	
+	/**
+	 * Sets a timestamp for a touch
+	 * 
+	 * @param time 
+	 *            the new time stamp
+	 */
+	protected void setTimeStamp(long time) {
+		timeStamp = time;
+	}
+
+	/**
+	 * Sets a xPosition for a touch
+	 * 
+	 * @param xPosition
+	 *            the new xPosition
+	 */
+	protected void setXPos( float xPosition) {
+		xPos = xPosition;
+	}
+
+	/**
+	 * Sets a yPosition for a touch
+	 *
+	 * @param yPosition
+	 *            the new yPosition
+	 */
+	protected void setYPos( float yPosition ) {
+		yPos = yPosition;
+	}
+
+	/**
+	 * Sets a intensity for a touch
+	 *
+	 * @param newIntensity
+	 *            the new Intensity
+	 */
+	protected void setIntensity( float newIntensity) {
+		intensity = newIntensity;
+	}
+	
 	
 }

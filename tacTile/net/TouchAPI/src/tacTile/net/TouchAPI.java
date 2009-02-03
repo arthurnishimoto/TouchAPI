@@ -30,85 +30,174 @@ import processing.net.*;
 import hypermedia.net.*;
 
 /**
- * TouchAPI is an addition to the Processing Libraries written so Processing applications could communicate with the TacTile.<br>
- * Tac Tile is a Multi-touch table begin researched at the Electronic Visualization Lab at the University of Illinois at Chicago.
+ * TouchAPI is an addition to the Processing Libraries written so Processing
+ * applications could communicate with the TacTile.<br>
+ * Tac Tile is a Multi-touch table begin researched at the Electronic
+ * Visualization Lab at the University of Illinois at Chicago.
  * 
  * <br>
  * <br>
- * The TouchAPI constructor creates and manages communications between a <u>touch server</u> and a <u>Processing application</u>.<br>
+ * The TouchAPI constructor creates and manages communications between a
+ * <u>Touch Server</u> and a <u>Processing application</u>.<br>
  * <br>
- * Connections are facilitated by simply calling the TouchApi constructors.  However, there are two constructors that can be called depending on the type of touch server.
+ * <b>CONNECTION : Touch Servers</b><br>
  * <ul>
- *		<li><b>TacTile Touch Server:</b> Processing applications that are loaded onto TacTile for testing can access  
- * 			touch data from the TacTile touch server.  This is done by simply calling this constructor:<br> 
- *			{@link TouchAPI#TouchAPI(Object owner)}
- *		<br><br>
- * 		<li><b>Local Touch Server:</b> Often times during development a Multi-Touch Pad is used.  Construction and drivers for such a device can be found <a href="http://www.evl.uic.edu/spiff/class/cs426/index.html"> here.</a>
- * 			Installing the drivers allows input on the Multi-Touch Pad to be sent to your personal computer. 
- * 			Your machine is now a local touch server! 
- * 			In conjunction with TouchAPI, both the local touch server and Processing application can run on the same machine.
- * 		    This is done by simply calling this constructor:<br> 
- *			{@link TouchAPI#TouchAPI(Object owner, int data_port)}
+ * 		Connections are facilitated by simply calling the TouchApi constructors.
+ * 		However, there are two constructors that can be called depending on the type
+ * 		of touch server.
+ * 		<ul>
+ * 		<li><b>TacTile Touch Server:</b> Processing applications that are loaded
+ * 		onto TacTile for testing can access touch data from the TacTile touch server.
+ * 		This is done by simply calling this constructor:<br>
+ * 		<b>
+ * 		{@link TouchAPI#TouchAPI(Object owner)} <br>
+ * 		</b>
+ * 		<br>
+ * 		<li><b>Local Touch Server:</b> Often times during development a Multi-Touch
+ * 		Pad is used. Construction and drivers for such a device can be found <a
+ * 		href="http://www.evl.uic.edu/spiff/class/cs426/index.html"> here.</a>
+ * 		Installing the drivers allows input on the Multi-Touch Pad to be sent to your
+ * 		personal computer. Your machine is now a local touch server! In conjunction
+ * 		with TouchAPI, both the local touch server and Processing application can run
+ * 		on the same machine. This is done by simply calling this constructor:<br>
+ * 		<b>
+ * 		{@link TouchAPI#TouchAPI(Object owner, int data_port)}
+ * 		</b>
+ * 		</ul>
+ * 		<br>
+ * 		<ul>
+ * 		<li><b>Specified Touch Server:</b> This is an alternative constructor that will allow 
+ * 		the user to specify all the information needed to make a connection with TouchAPI:<br>
+ * 		<b>
+ * 		{@link TouchAPI#TouchAPI(Object owner, int data_port, int msg_port, String serverIP) }
+ *		</b>
+ * 		</ul>
+ * 		<br>
+ * 
+ * After a connection is formed by either one of these constructors, TouachAPI is called to collect touch data from the
+ * Touch Server.  
+ * 
  * </ul>
- * <br> 
- * Both these connection will tell TouachAPI to collect touch data from the touch server.
- * The data is then processed and stored as an ArrayList inside the TouchAPI.  Various
- * functions will allow users to access the touch data:<br>
+ * <b>RETRIEVAL : Touch Data</b><br>
  * <ul>
- * 	<b>Retrieval</b> 
- * 		<ul>
- * 		<li>{@link TouchAPI#getTouch( int )}
- * 		<li>{@link TouchAPI#getLeastRecentTouch()}
- * 		<li>{@link TouchAPI#getMostRecentTouch()}
+ * The data is then processed and stored within <i>two</i> ArrayLists inside
+ * the TouchAPI:
+ * <ul>
+ * 		<li><b>dataTouchList:</b>
+ *		<ul> For more advanced users who want to manage their own touch data.  
+ *			 This arrayList of Touches is the parsed data that is sent back from
+ *			 the touch server.<br>
+ *			 <br>
+ *			 The dataTouchList has an initial maximum size of 200.  Any touches
+ *			 beyond the maximum will still be added to the list.  However, the oldest
+ *			 touch in the list will be deleted.  Essentially only 200 of the most recent touches	
+ *			 will be kept in the list.  This list size can be retrieved and altered via:
+ *			 <b>
+ *			 {@link TouchAPI#getTouchData( int )} , 
+ *			 {@link TouchAPI#getLeastRecentTouchData()}, & 
+ *			 {@link TouchAPI#getMostRecentTouchData()}.
+ *			 </b><br>
+ *			 <br>
+ * 			 The data within the dataTouchList can be accessed by the following methods:
+ * 			 <ul><i>Retrieve data : </i><br> 
+ * 			 	<b>
+ * 			 	{@link TouchAPI#getTouchData( int )} , 
+ * 			 	{@link TouchAPI#getLeastRecentTouchData()} & 
+ * 			 	{@link TouchAPI#getMostRecentTouchData()}.<br>
+ * 			 	</b>
+ * 			 </ul>
+ * 			 <br>
+ * 			 <ul><i>Clearing the list : </i><br>
+ * 			 	<b>
+ * 			 	{@link TouchAPI#clearAllButEarliestTouchData()} & 
+ * 			 	{@link TouchAPI#clearAllDataTouches()}.<br>
+ * 			 </b>
+ * 			 </ul>
+ * 			 <br>
+ * 			 <ul><i>List Attributes : </i><br>
+ * 			 	<b>
+ * 			 	{@link TouchAPI#dataListIsEmpty()} & 
+ * 			 	{@link TouchAPI#dataListSize()}.<br>
+ * 			 	</b>
+ * 			 </ul>
  * 		</ul>
- * 	<br>
- * 	<b>Clearing</b>
- * 		<ul>
- * 		<li>{@link TouchAPI#clearAllButEarliestTouch()}
- *  	<li>{@link TouchAPI#clearAllTouches()}
- * 		</ul>
- * 	<br>
- * 	<b>List Attributes</b>
- * 		<ul> 
- * 		<li>{@link TouchAPI#listIsEmpty()}
- * 		<li>{@link TouchAPI#listSize()}
- * 		</ul>
+ * 		<br> 
+ * 		<li><b>managedTouchList:</b>
+ * 		<ul> This list manages the touch data for you.  The data for each touch is stored
+ * 			 within an instance of <b>{@link Touches}</b>.  A new touch's finger ID is first 
+ * 			 compared with all the existing touches in the managedTouchList.  If the finger 
+ * 			 ID is not present the touch is assumed to be new and added to the managedTouchList.
+ * 			 If it is present, then the x Position, y Position, time stamp and intensity are 
+ * 			 updated.<br>
+ *    		 <br>
+ *    		Once the finger ID is checked, the managedTouchList is then refreshed.  Each touch has a life span in
+ *    		 milliseconds. During the refresh period, if a touch exceeds its life time it is
+ *        	 removed from the list.  The default value for a life time is 80 milliseconds.  This
+ *           can be changed via the function: <b>{@link TouchAPI#setTouchLifeTime(long time)}</b>.
+ *			 The entire managedTouchList and info about the list can be accessed by the following methods:
+ * 			 <ul><i>Retrieve list : </i><br> 
+ * 			 	<b>
+ * 			 	{@link TouchAPI#getManagedList()}<br>
+ * 		     	</b>
+ * 			 </ul>
+ * 			 <br>
+ *   		 <ul><i>managedTouchList info: </i><br> 
+ * 			 	<b>
+ * 			 	{@link TouchAPI#managedListSize()} & {@link TouchAPI#managedListIsEmpty()}<br>
+ * 		     	</b>
+ * 			 </ul>
+ * 			 <br> 
+ *		</ul>
  * </ul>
+ *  
+ * 
+ * 
+ * 
+
  * 
  * @version 0.1
  * @author Dennis Chau - Koracas@gmail.com<br>
  */
 public class TouchAPI {
 
-	int port_tcp; 		// port to send the TCP msg in order to start sending datagrams
-	int port_udp; 		// port open where to recieve UDP msgs.
-	String serverName; 	// machine where the datagrams will come from
+	int port_tcp; // port to send the TCP msg in order to start sending
+					// datagrams
+	int port_udp; // port open where to recieve UDP msgs.
+	String serverName; // machine where the datagrams will come from
 
 	Client clientForServer; // The Client obj that will comm with Tac Tile
-	UDP socketForData;		// The udp socket that will recieve the data 
-	
-	//the Array List that will hold all the processed touches
-	ArrayList<Touches> touchList = new ArrayList<Touches>();
+	UDP socketForData; // The udp socket that will recieve the data
 
-	boolean debug = false; 			// true if the debug method should print debug msgs
-	boolean connected = false; 		// true if there is a server connection
-	boolean dataOn = false; 		// true if server as told to send data
-	boolean server = false; 		// true if there is server info
-	boolean log = false; 			// enable/disable output log
-	boolean listen = false; 		// true, if the socket waits for packets
+	// the Array List that will hold all raw touches
+	ArrayList<Touches> dataTouchList = new ArrayList<Touches>();
+
+	// the Array List that will hold all the managed touches
+	ArrayList<Touches> managedTouchList = new ArrayList<Touches>();
+
+	boolean debug = false; // true if the debug method should print debug msgs
+	boolean connected = false; // true if there is a server connection
+	boolean dataOn = false; // true if server as told to send data
+	boolean server = false; // true if there is server info
+	boolean log = false; // enable/disable output log
+	boolean listen = false; // true, if the socket waits for packets
 
 	// the parent object (could be an application, a componant, etc...)
 	Object owner = null;
 
-	// The "receive handler" methods name.  This is the method name
-	//   that the UDP will call when the socket recieves data. 
+	// The "receive handler" methods name. This is the method name
+	// that the UDP will call when the socket recieves data.
 	String modHandler = "__tacTile_Polling__";
+	String timeOutHandler = "__tacTile_TimeOut__";
 
-	// the log "header" to be set for debugging. 
+	// the log "header" to be set for debugging.
 	String header = "";
 
-	//Currently intensity is not part of the info sent in, but a hardcoded value
+	// Intensity is not part of the info sent in, but a hardcoded value
 	float intensity = (float) .5;
+
+	// The life time of a touch in milliseconds
+	long touchLifeTime = 80;
+	int dataTouchListSize = 200;
 	
 	// /////////////////////////////// fields ///////////////////////////////
 	/**
@@ -121,10 +210,10 @@ public class TouchAPI {
 	private static final String MSG_TCP_SEND_DATA = "data_on,";
 
 	/**
-	 * The default number of touches list can hold
+	 * The milliseconds req for the table to realize there are no touches 
 	 */
-	private static final int LIST_SIZE = 200;
-	
+	private static final int TIMEOUT_TIME = 30;
+
 	/**
 	 * The IP for TacTile Touch Server
 	 */
@@ -134,7 +223,7 @@ public class TouchAPI {
 	 * The port on TacTile to send msgs to
 	 */
 	private static final int TCP_PORT = 7340;
-	
+
 	/**
 	 * The socket where data from TacTile should be sent
 	 */
@@ -142,42 +231,61 @@ public class TouchAPI {
 
 	// //////////////////////////// constructors ////////////////////////////
 	/**
-	 * Default constructor that will create a connection between the TacTile touch server and a Processing Application.
+	 * Default constructor that will create a connection between the TacTile
+	 * touch server and a Processing Application.
 	 * 
 	 * @param owner
-	 *            the parent object so the class knows how to get back to the Processing Application
+	 *            the parent object so the class knows how to get back to the
+	 *            Processing Application
 	 */
 	public TouchAPI(Object owner) {
-		this( owner, UDP_PORT, TCP_PORT, TACTILE_IP);
+		this(owner, UDP_PORT, TCP_PORT, TACTILE_IP);
 	}
 
 	/**
-	 * Constructor that will create a connection between a local touch server and a Processing Application. 
-	 * Consequently both these applications will be running on the same machine.
-	 * In order to establish this connection, all that is needed is a port where the data should be stored.
+	 * Constructor that will create a connection between a local touch server
+	 * and a Processing Application. Ideally this would be used along with the
+	 * OmegaTracker Server running on the same machine as the Processing
+	 * Application. In order to establish this connection, all that is needed is
+	 * a port where the data should be stored. The constructor will
+	 * automatically connect to the machine that the TouchAPI is instantiated
+	 * on.
 	 * 
 	 * @param owner
-	 *            the parent object so the class knows how to get back to the Processing Application
-	 * @param touchPort
-	 *            the port where the touch server should send the data.  A suggested port number is 7000. 
+	 *            the parent object so the class knows how to get back to the
+	 *            Processing Application
+	 * @param data_port
+	 *            the port where the touch server should send the data. A
+	 *            suggested port number is 7000.
 	 */
-	public TouchAPI(Object owner, int touchPort) {
-		this( owner, touchPort, TCP_PORT, null);
+	public TouchAPI(Object owner, int data_port) {
+		this(owner, data_port, TCP_PORT, null);
 	}
-	
+
 	/**
-	 * Constructor that creates a new connection between a touch server and a Processing application.
-	 *     
+	 * Constructor that creates a new connection between a touch server and a
+	 * Processing application.  In order to form a connection the following information is needed:<br>
+	 * <ul>
+	 * 	<li>data_port : the port on the Touch Client where the data should be sent 
+	 * 	<li>msg_port  : the port on the Touch Server where the message to begin data transfer is sent
+	 * 	<li>serverIP  : the IP address of the Touch Server.
+	 * </ul>
+	 * If this information is correct, this constructor can be used to form a connection between the
+	 * Touch Server and the Processing Application.  TouchAPI will send a "being data transfer" message
+	 * to the specified port and server.   Once this message is sent, it listens to the data_port
+	 * for any incoming data.
+	 * 
 	 * @param owner
-	 *            the parent object so the class knows how to get back to the Processing Application
-	 * @param udp_port
-	 *            port where touch server will send data to 
-	 * @param tcp_port
+	 *            the parent object so the class knows how to get back to the
+	 *            Processing Application
+	 * @param data_port
+	 *            port where touch server will send data to
+	 * @param msg_port
 	 *            port on the touch server to initiate message passing
 	 * @param serverIP
 	 *            address for the touch server ( your machine's IP address)
 	 */
-	private TouchAPI(Object owner, int udp_port, int tcp_port, String serverIP) {
+	public TouchAPI(Object owner, int data_port, int msg_port, String serverIP) {
 		this.owner = owner;
 
 		// Register this object to the PApplet
@@ -189,15 +297,16 @@ public class TouchAPI {
 		}
 
 		// Open UDP Socket
-		if (udp_port != 0) {
-			this.port_udp = udp_port;
-			socketForData = new UDP(this, udp_port);
+		if (data_port != 0) {
+			this.port_udp = data_port;
+			socketForData = new UDP(this, data_port);
 			socketForData.setReceiveHandler(modHandler);
-			debug( "Opened socket:" + udp_port() );
+			socketForData.setTimeoutHandler(timeOutHandler);
+			debug( "Opened socket:" + udp_port() + "\n");
 		}
 
 		// Open connection to server
-		if (tcp_port != 0 && serverIP == null) {
+		if (msg_port != 0 && serverIP == null) {
 			try {
 				InetAddress address = InetAddress.getLocalHost();
 
@@ -212,46 +321,47 @@ public class TouchAPI {
 					}
 				}
 				this.serverName = ipAddress;
-				this.port_tcp = tcp_port;
+				this.port_tcp = msg_port;
 				this.server = true;
 				// Initialize connection with server
 				clientForServer = new Client((PApplet) owner, serverName, port_tcp);
 				this.connected = true;
-				debug( "Opened connection to server:" + serverAddy() + ", port: " + tcp_port());
+				debug( "Opened connection to server:" + serverAddy() + ", port: " + tcp_port()+ "\n");
 
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
-		} else if (tcp_port != 0 && serverIP != null) {
+		} else if (msg_port != 0 && serverIP != null) {
 			this.serverName = serverIP;
-			this.port_tcp = tcp_port;
+			this.port_tcp = msg_port;
 			this.server = true;
 			// Initialize connection with server
 			clientForServer = new Client((PApplet) owner, serverName, port_tcp);
 			this.connected = true;
-			debug( "Opened connection to server:" + serverAddy() + ", port: " + tcp_port());
+			debug( "Opened connection to server:" + serverAddy() + ", port: " + tcp_port()+ "\n");
 		} else { 
 			this.server = false;
 			this.connected = false;
 		}
 		
-		//Initiate data transfer
+		// Initiate data transfer
 		this.dataOn = false;
 		initHandShake();
-		debug( "Data Ready to be tranfered.");
+		debug( "Data Ready to be tranfered."+ "\n");
 
-		//Tell port to start polling
+		// Tell port to start polling
 		udpListen(true);
-		debug( "Socket is listening.");
+		debug( "Socket is listening."+ "\n");
 		
 	}
 
 	// ///////////////////////////// methods ///////////////////////////////
 
 	/**
-	 * Close the connections that are made to touch server and the Processing Application.
-	 * This method is automatically called by Processing when the PApplet shuts down.<br>
-	 * You <i>DO NOT</i> need to call this method. 
+	 * Close the connections that are made to touch server and the Processing
+	 * Application. This method is automatically called by Processing when the
+	 * PApplet shuts down.<br>
+	 * You <i>DO NOT</i> need to call this method.
 	 */
 	public void dispose() {
 		udpClose();
@@ -290,7 +400,7 @@ public class TouchAPI {
 	private boolean socketIsClosed() {
 		return socketForData.isClosed();
 	}
-	
+
 	/**
 	 * Return true if connected to server
 	 * 
@@ -361,7 +471,7 @@ public class TouchAPI {
 	 * 
 	 */
 	private void udpListen(boolean on) {
-		socketForData.listen(on);
+		socketForData.listen(TIMEOUT_TIME);
 	}
 
 	/**
@@ -376,12 +486,10 @@ public class TouchAPI {
 				clientForServer.write(MsgTCPInit);
 				this.dataOn = true;
 			} else {
-				// TODO:: insert exception here
 				error("no connection to server");
 				System.exit(1);
 			}
 		} else {
-			// TODO:: insert exception here
 			error("no server info");
 			System.exit(1);
 		}
@@ -397,10 +505,11 @@ public class TouchAPI {
 	}
 
 	/**
-	 * Pads the msgs bc they need to be 99 char long.  Then returns the complete string
+	 * Pads the msgs bc they need to be 99 char long. Then returns the complete
+	 * string
 	 * 
 	 * @param msg
-	 *           The message that will be padded 
+	 *            The message that will be padded
 	 * @return boolean
 	 */
 	private String padMsg(String msg) {
@@ -422,33 +531,34 @@ public class TouchAPI {
 	}
 
 	/**
-	 * Parses the messages that are sent to the socket.  The messages are passes 
+	 * Parses the messages that are sent to the socket. The messages are passes
 	 * in as string in the following format:<br>
-	 * <ul> 
+	 * <ul>
 	 * timestamp:flag:finger_ID, xPos, yPos<br>
-	 * <small>
-	 * *Note: that the xpos and yPos are ratios between 0 to 1
-	 * </small>
+	 * <small> *Note: that the xpos and yPos are ratios between 0 to 1 </small>
 	 * </ul>
 	 * They are then parsed out with the data types:
 	 * <ul>
-	 *   String : String : int, float, float
+	 * String : String : int, float, float
 	 * </ul>
-	 * These values are then passed to the Touch constructor where they are stored:
-	 * The Touch that is returned from the constructor is then stored inside an ArrayList
-	 * of touches.  These touches can then be accessed by various methods  
+	 * These values are then passed to the Touch constructor where they are
+	 * stored: The Touch that is returned from the constructor is then stored
+	 * inside an ArrayList of touches. These touches can then be accessed by
+	 * various methods
 	 * 
 	 * @param dGram
-	 *           The datagram that was sent to the  socket 
+	 *            The datagram that was sent to the socket
 	 * @return Touches
-	 * @see Touches#Touches(String flag, String timeStamp, int finger, float xPos, float yPos)
+	 * @see Touches#Touches(String flag, String timeStamp, int finger, float
+	 *      xPos, float yPos)
 	 */
 	private Touches parseDGram(String dGram) {
 		int firstSpace = dGram.indexOf(" ", 0);
-		dGram = dGram.substring( 0, firstSpace );
-		
-		String flag, timeStamp;
+		dGram = dGram.substring(0, firstSpace);
+
+		String flag;
 		int finger;
+		long timeStamp;
 		float xPos, yPos;
 
 		int start, last, sub_last;
@@ -460,49 +570,46 @@ public class TouchAPI {
 		flag = dGram.substring(start + 1, start + 2);
 
 		// Only message a d flag are useful. //
-		if (flag.compareTo("d") == 0) {
-			log("MSG received : <"+dGram+">");
-			
-			debug("  Flag: -" + flag + "-" );
-			
+		if (flag.compareTo("d") == 0 || flag.compareTo("g") == 0) {
+			log("MSG received : <" + dGram + ">");
+
 			// time stamp //
-			timeStamp = dGram.substring(0, sub_last);
+			timeStamp = System.currentTimeMillis();
+
 			last = sub_last;
-			debug("  Time: -" + timeStamp + "-" );
-			
+
 			// finger //
 			start = dGram.indexOf(":", last + 1);
 			sub_last = start;
 			last = sub_last;
-			
+
 			start = dGram.indexOf(",", last + 1);
 			sub_last = start;
 			finger = Integer.parseInt(dGram.substring(last + 1, sub_last));
 			last = sub_last;
-			debug( " Finger: -" + finger + "-" );
-			
+
 			// x pos //
 			start = dGram.indexOf(",", last + 1);
 			sub_last = start;
-			xPos = Float.valueOf(dGram.substring(last + 1, sub_last)).floatValue();
+			xPos = Float.valueOf(dGram.substring(last + 1, sub_last))
+					.floatValue();
 			last = sub_last;
-			debug( " XPos: -" + xPos + "-" );
-			
-			// y pos //
-			yPos = Float.valueOf(dGram.substring(last + 1, maxLen)).floatValue();
-			debug( " YPos: -" + yPos + "-" );
 
-			Touches curTouch = new Touches(timeStamp, finger, xPos, yPos, intensity);
+			// y pos //
+			yPos = Float.valueOf(dGram.substring(last + 1, maxLen))
+					.floatValue();
+
+			Touches curTouch = new Touches(timeStamp, finger, xPos, yPos,
+					intensity);
 			return curTouch;
 		} else {
-			// System.out.println( " Msg Dropped." );
 			return null;
 		}
 	}
 
 	/**
 	 * Process data that is transfered into the socket. Creates a touch out of
-	 * it and stores it in the touchList variable.
+	 * it and stores it in the dataTouchList and managedTouchList variable.
 	 * 
 	 * @param data
 	 *            the data byte array of data
@@ -511,37 +618,78 @@ public class TouchAPI {
 		String dGram = new String(data);
 		Touches newTouch = parseDGram(dGram);
 		if (newTouch != null) {
-			addTouch(newTouch);
+			addTouches(newTouch);
 		}
 	}
 
 	/**
-	 * Adds a new touch to the touchList
+	 * Adds a new touch to the dataTouchList and managedTouchList
 	 * 
 	 * @param newTouch
-	 *            A Touches object to be added to touchList 
+	 *            A Touches object to be added to dataTouchList and
+	 *            managedTouchList
 	 */
-	private void addTouch(Touches newTouch) {
-		if (listSize() > LIST_SIZE) {
-			removeTouch(0);
+	private void addTouches(Touches newTouch) {
+		// add to dataTouchList
+
+		if (dataListSize() > dataTouchListSize) {
+			removeTouchData(0);
 		}
-		touchList.add(newTouch);
+		dataTouchList.add(newTouch);
+
+		// add to managedTouchList
+		addNewManagedTouch(newTouch);
 	}
 
 	/**
-	 * Returns a specified Touches in the touchList.  If the list is empty, a Null is returned.<br>  
+	 * Returns true if dataTouchList is empty
+	 * 
+	 * @return boolean
+	 */
+	public boolean dataListIsEmpty() {
+		return dataTouchList.isEmpty();
+	}
+
+	/**
+	 * Returns the size of the dataTouchList
+	 * 
+	 * @return int
+	 */
+	public int dataListSize() {
+		return dataTouchList.size();
+	}
+
+	/**
+	 * Allows user to set the <b>max</b> size of the dataTouchList
+	 */
+	public void setDataListMaxSize(int size ) {
+		dataTouchListSize = size;
+	}
+	
+	/**
+	 * Returns the <b>current maximum</b> size of the dataTouchList
+	 * 
+	 * @return int
+	 */
+	public int getDataListMaxSize( ) {
+		return dataTouchListSize;
+	}
+	
+	/**
+	 * Returns a specified Touches in the dataTouchList. If the list is empty, a
+	 * Null is returned.<br>
 	 * Once the touch is retrieved, the Touches are <b> removed </b>.
 	 * 
 	 * @param index
 	 *            The index of the desired touch
-	 * @return 	Touches if touchList is not empty<br>
-	 * 			OR<br> 
-	 * 			Null if touchList is empty 
+	 * @return Touches if dataTouchList is not empty<br>
+	 *         OR<br>
+	 *         Null if dataTouchList is empty
 	 */
-	public Touches getTouch(int index) {
-		if ( !listIsEmpty() ) {
-			Touches curTouch = touchList.get(index);
-			removeTouch(index);
+	public Touches getTouchData(int index) {
+		if (!dataListIsEmpty()) {
+			Touches curTouch = dataTouchList.get(index);
+			removeTouchData(index);
 			return curTouch;
 		} else {
 			return null;
@@ -549,75 +697,169 @@ public class TouchAPI {
 	}
 
 	/**
-	 * Returns a the oldest touch on the touchList.   If the list is empty, a Null is returned.<br>  
+	 * Returns a the oldest touch on the dataTouchList. If the list is empty, a
+	 * Null is returned.<br>
 	 * Once the touch is retrieved, the Touches are <b> removed </b>.
 	 * 
-	 * @return 	Touches if touchList is not empty -OR- Null if touchList is empty 
+	 * @return Touches if dataTouchList is not empty -OR- Null if dataTouchList
+	 *         is empty
 	 */
-	public Touches getLeastRecentTouch() {
-		Touches curTouch = getTouch(0);
+	public Touches getLeastRecentTouchData() {
+		Touches curTouch = getTouchData(0);
 		return curTouch;
 	}
 
 	/**
-	 * Returns a the newest touch on the touchList.   If the list is empty, a Null is returned.  <br>
+	 * Returns a the newest touch on the dataTouchList. If the list is empty, a
+	 * Null is returned. <br>
 	 * Once the touch is retrieved, the Touches are <b> removed </b>.
 	 * 
-	 * @return 	Touches if touchList is not empty -OR- Null if touchList is empty
+	 * @return Touches if dataTouchList is not empty -OR- Null if dataTouchList
+	 *         is empty
 	 */
-	public Touches getMostRecentTouch() {
-		int latest = listSize() - 1;
-		Touches curTouch = getTouch(latest);
+	public Touches getMostRecentTouchData() {
+		int latest = dataListSize() - 1;
+		Touches curTouch = getTouchData(latest);
 		return curTouch;
 	}
 
 	/**
-	 * Removes a specified element from the touchList
+	 * Clears all the Touches in the dataTouchList
+	 */
+	public void clearAllDataTouches() {
+		dataTouchList.clear();
+	}
+
+	/**
+	 * Clears all the Touches in the dataTouchList except for the newest one
+	 */
+	public void clearAllButEarliestTouchData() {
+		int size = dataListSize();
+		if (size > 1) {
+			int last = size - 1;
+			Touches temp = new Touches();
+			temp = dataTouchList.get(last);
+			clearAllDataTouches();
+			if (dataListSize() > dataTouchListSize) {
+				removeTouchData(0);
+			}
+			dataTouchList.add(temp);
+		} else {
+			return;
+		}
+	}
+
+	/**
+	 * Removes a specified element from the dataTouchList
 	 * 
 	 * @param index
 	 *            The index of the desired touch
 	 */
-	private void removeTouch(int index) {
-		touchList.remove(index);
+	private void removeTouchData(int index) {
+		dataTouchList.remove(index);
 	}
 
 	/**
-	 * Returns the size of the touchList
+	 * Passes in a new touch and compares its ID with all current touches. If it
+	 * is indeed a new finger, then it is added to the managedTouchList. If it
+	 * is an existing finger its: x position, y positions, intensity, and
+	 * timestamp are updated. The managedTouchList is then refreshed.
+	 * 
+	 * @param newTouch
+	 *            The new touch
+	 */
+	private void addNewManagedTouch(Touches newTouch) {
+		if (newTouch != null) {
+			boolean sameFinger = false;
+
+			for (int tempIndex = 0; tempIndex < managedListSize(); tempIndex++) {
+				int newId = newTouch.getFinger();
+
+				Touches curTouch = managedTouchList.get(tempIndex);
+
+				int curTempID = curTouch.getFinger();
+
+				if (curTempID == newId) {
+					sameFinger = true;
+					curTouch.setTimeStamp(newTouch.getTimeStamp());
+					curTouch.setXPos(newTouch.getXPos());
+					curTouch.setYPos(newTouch.getYPos());
+					curTouch.setIntensity(newTouch.getIntensity());
+				}
+			}
+
+			if (sameFinger == false) {
+				managedTouchList.add(newTouch);
+			}
+		}
+		refreshManagedList();
+	}
+
+	/**
+	 * Refreshes the managedTouchlist by looking at all the Touches in the list.
+	 * The current time is subtracted by each respective timestamp.  This difference 
+	 * is compared to the touchLifeTime value.  Any touches that have a lifetime that 
+	 * exceeds this value is dropped.
+	 */
+	private void refreshManagedList() {
+
+		ArrayList<Touches> tempManagedList = new ArrayList<Touches>();
+
+		for (int index = 0; index < managedListSize(); index++) {
+			long curTimeStamp = System.currentTimeMillis();
+			Touches temp = managedTouchList.get(index);
+			long touchTimeStamp = temp.getTimeStamp();
+
+			if (curTimeStamp - touchTimeStamp < touchLifeTime) {
+				tempManagedList.add(temp);
+			}
+		}
+
+		managedTouchList = tempManagedList;
+	}
+
+	/**
+	 * Returns the entire managedTouchList.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getManagedList() {
+		return managedTouchList;
+	}
+
+	/**
+	 * Returns the size of the managedTouchList
+	 * 
 	 * @return int
 	 */
-	public int listSize() {
-		return touchList.size();
+	public int managedListSize() {
+		return managedTouchList.size();
 	}
 
 	/**
-	 * Returns true if touchList is empty
+	 * Returns true if managedTouchList is empty
+	 * 
 	 * @return boolean
 	 */
-	public boolean listIsEmpty() {
-		return touchList.isEmpty();
+	public boolean managedListIsEmpty() {
+		return managedTouchList.isEmpty();
 	}
 
 	/**
-	 * Clears all the Touches in the touchList
+	 * Set the lifetime of a touch within the <b>managedTouchList</b>
+	 * 
+	 * @param time 
+	 *            the lifetime of a touch in milliseconds.  Default value is 80. 
 	 */
-	public void clearAllTouches() {
-		touchList.clear();
+	public void setTouchLifeTime(long time) {
+		touchLifeTime = time;
 	}
-
+	
 	/**
-	 * Clears all the Touches in the touchList except for the newest one
+	 * Clears all the Touches in the managedTouchList
 	 */
-	public void clearAllButEarliestTouch() {
-		int size = listSize();
-		if (size > 1 ){
-			int last = size - 1;
-			Touches temp = new Touches();
-			temp = touchList.get(last);
-			clearAllTouches();
-			addTouch(temp);
-		} else {
-			return;
-		}
+	private void clearManagedList() {
+		managedTouchList.clear();
 	}
 
 	/**
@@ -637,12 +879,12 @@ public class TouchAPI {
 		Date date = new Date();
 		// define the "header" to retrieve at least the principal socket
 		// informations : the host/port where the socket is bound.
-		if (log && header.equals("")){
+		if (log && header.equals("")) {
 			header = "-- Tac Tile API session: " + date;
-			System.out.println( header );
-		} 
-		
-		if (log && !header.equals("")){
+			System.out.println(header);
+		}
+
+		if (log && !header.equals("")) {
 			String pattern = "yy-MM-dd HH:mm:ss.S Z";
 			String sdf = new SimpleDateFormat(pattern).format(date);
 			System.out.println("  [" + sdf + "] " + out);
@@ -660,43 +902,72 @@ public class TouchAPI {
 	}
 
 	/**
-	 * Output debug messages 
+	 * Output debug messages
 	 * 
 	 * @param out
 	 *            the debug string
 	 */
 	private void debug(String out) {
 		Date date = new Date();
-		if (debug && header.equals("")){
+		if (debug && header.equals("")) {
 			header = "-- Tac Tile API session: " + date;
-			System.out.println( header);
+			System.out.println(header);
 		}
 		if (debug) {
-			System.out.println( out );
+			System.out.print(out);
 		}
 	}
 
 	/**
-	 * In order to perform parsing of the incoming touch data, this method is needed.<br>
+	 * In order to perform parsing of the incoming touch data, this method is
+	 * needed.<br>
 	 * You <i>DO NOT</i> need to implement/use this method.
 	 * 
 	 * @param data
-	 *            the data that is transmitted 
+	 *            the data that is transmitted
 	 * @param IP
-	 *            the IP of the data's origin 
+	 *            the IP of the data's origin
 	 * @param port
 	 *            the port the data was sent from
-	 * @see TouchAPI#processData(byte[] data) 
+	 * @see TouchAPI#processData(byte[] data)
 	 */
-	 // This implemention of the handler is needed in your code.  This method will be 
- 	 // automatically called by the UDP object each time he receive a nonnull 
-	 // message. By default, this method have just one argument (the received message
-	 // as byte[ ] array), but in addition, two arguments (representing in order
-	 // the sender IP address and his port can be set like below.<br>
-	 // Current implementation is: once data is passed in, it hands it over to processData() for parsing
- 	 // void __tacTile_Polling__( byte[] data ) { // <-- default handler
-	public void __tacTile_Polling__(byte[] data, String ip, int port) { // <-- extended handler
+	// This implemention of the handler is needed in your code. This method will
+	// be
+	// automatically called by the UDP object each time he receive a nonnull
+	// message. By default, this method have just one argument (the received
+	// message
+	// as byte[ ] array), but in addition, two arguments (representing in order
+	// the sender IP address and his port can be set like below.<br>
+	// Current implementation is: once data is passed in, it hands it over to
+	// processData() for parsing
+	// void __tacTile_Polling__( byte[] data ) { // <-- default handler
+	public void __tacTile_Polling__(byte[] data, String ip, int port) { // <--
+																		// extended
+																		// handler
 		processData(data);
+	}
+
+	/**
+	 * In order to perform proper handling when TacTile is idle, this method is
+	 * needed.<br>
+	 * You <i>DO NOT</i> need to implement/use this method.
+	 * 
+	 * @param data
+	 *            the data that is transmitted
+	 * @param IP
+	 *            the IP of the data's origin
+	 * @param port
+	 *            the port the data was sent from
+	 * @see TouchAPI#processData(byte[] data)
+	 */
+	// This implemention of the handler is needed in your code. This method will
+	// be
+	// automatically called by the UDP object each time it times out while
+	// polling.
+	// This indicates that there has been no activity on tacTile.
+	public void __tacTile_TimeOut__() { // <-- extended handler
+		// clearManagedList();
+		refreshManagedList();
 	}
 
 }

@@ -142,8 +142,6 @@ public class UDP implements Runnable {
 	 * socket, pass the group address to be joined. If this address is not a 
 	 * valid multicast address, a broadcast socket will be created by default.
 	 *
-	 *	TODO:: Added stuff here. instanceof
-	 *
 	 * @param owner	the target object to be call by the receive handler
 	 * @param port	local port to bind
 	 * @param ip	host address or group address
@@ -595,15 +593,20 @@ public class UDP implements Runnable {
 			listen = false;
 			thread = null;
 			
-			if ( e instanceof SocketTimeoutException ) callTimeoutHandler();
-			else {
+			if ( e instanceof SocketTimeoutException ){
+				// CHANGE HERE...
+				//   Though it timed out, we still want UDP socket to be listening.
+				//   That way it does not terminates but waits for more data.
+				callTimeoutHandler();
+				listen = true;
+			} else {
 				 // do not print "Socket closed" error 
 				// if the method close() has been called
 				if ( ucSocket!=null && mcSocket!=null )
 					error( "listen failed!\n\t> "+e.getMessage() );
 			}
 		}
-	}
+		}
 	
 	/**
 	 * Wait for incoming datagram packets. This method is called automaticlly,
