@@ -33,8 +33,8 @@ package tacTile.net;
  * 		<li> <b>Intensity: </b><br>
  * 				<ul>
  * 				The relative intensity of the touch.  
- * 				This functionality is currently <b>NOT</b> implemented.  
- * 				A default value of .5 is given for each touch.
+ * 				This intensity is an area of the respective touch.
+ * 				It will range from one to infinity.
  * 				</ul>
  * </ul> 
  * 

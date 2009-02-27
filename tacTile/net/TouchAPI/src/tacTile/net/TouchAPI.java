@@ -149,11 +149,6 @@ import hypermedia.net.*;
  * 			 <br> 
  *		</ul>
  * </ul>
- *  
- * 
- * 
- * 
-
  * 
  * @version 0.1
  * @author Dennis Chau - Koracas@gmail.com<br>
@@ -191,9 +186,6 @@ public class TouchAPI {
 
 	// the log "header" to be set for debugging.
 	String header = "";
-
-	// Intensity is not part of the info sent in, but a hardcoded value
-	float intensity = (float) .5;
 
 	// The life time of a touch in milliseconds
 	long touchLifeTime = 80;
@@ -275,17 +267,19 @@ public class TouchAPI {
 	 * to the specified port and server.   Once this message is sent, it listens to the data_port
 	 * for any incoming data.
 	 * 
+	 * <b><i>Note:</i></b> If the Touch Server is running on the same computer as the Touch Client, the serverIP should be set to the IP of the localhost.
+	 * 
 	 * @param owner
 	 *            the parent object so the class knows how to get back to the
 	 *            Processing Application
-	 * @param data_port
-	 *            port where touch server will send data to
-	 * @param msg_port
-	 *            port on the touch server to initiate message passing
+	 * @param clientPort
+	 *            the port the Touch Client listens on for touch messages from the Touch Server.
+	 * @param serverPort
+	 *            the IP address of the Touch Server.
 	 * @param serverIP
-	 *            address for the touch server ( your machine's IP address)
+	 *            the port the Touch Server listens on for new clients.
 	 */
-	public TouchAPI(Object owner, int data_port, int msg_port, String serverIP) {
+	public TouchAPI(Object owner, int clientPort, int serverPort, String serverIP) {
 		this.owner = owner;
 
 		// Register this object to the PApplet
@@ -297,16 +291,16 @@ public class TouchAPI {
 		}
 
 		// Open UDP Socket
-		if (data_port != 0) {
-			this.port_udp = data_port;
-			socketForData = new UDP(this, data_port);
+		if (clientPort != 0) {
+			this.port_udp = clientPort;
+			socketForData = new UDP(this, clientPort);
 			socketForData.setReceiveHandler(modHandler);
 			socketForData.setTimeoutHandler(timeOutHandler);
 			debug( "Opened socket:" + udp_port() + "\n");
 		}
 
 		// Open connection to server
-		if (msg_port != 0 && serverIP == null) {
+		if (serverPort != 0 && serverIP == null) {
 			try {
 				InetAddress address = InetAddress.getLocalHost();
 
@@ -321,7 +315,7 @@ public class TouchAPI {
 					}
 				}
 				this.serverName = ipAddress;
-				this.port_tcp = msg_port;
+				this.port_tcp = serverPort;
 				this.server = true;
 				// Initialize connection with server
 				clientForServer = new Client((PApplet) owner, serverName, port_tcp);
@@ -331,9 +325,9 @@ public class TouchAPI {
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
-		} else if (msg_port != 0 && serverIP != null) {
+		} else if (serverPort != 0 && serverIP != null) {
 			this.serverName = serverIP;
-			this.port_tcp = msg_port;
+			this.port_tcp = serverPort;
 			this.server = true;
 			// Initialize connection with server
 			clientForServer = new Client((PApplet) owner, serverName, port_tcp);
@@ -559,7 +553,7 @@ public class TouchAPI {
 		String flag;
 		int finger;
 		long timeStamp;
-		float xPos, yPos;
+		float xPos, yPos, intensity;
 
 		int start, last, sub_last;
 		int maxLen = dGram.length() - 1;
@@ -594,13 +588,24 @@ public class TouchAPI {
 			xPos = Float.valueOf(dGram.substring(last + 1, sub_last))
 					.floatValue();
 			last = sub_last;
-
+			
 			// y pos //
-			yPos = Float.valueOf(dGram.substring(last + 1, maxLen))
+			start = dGram.indexOf(",", last + 1);
+			if ( start == -1 ){ 	//there is no intensity in the dgram
+				intensity = 0;
+				yPos = Float.valueOf(dGram.substring(last + 1, maxLen)).floatValue();
+			} else {				//there is intensity in the dgram 
+				sub_last = start;
+				yPos = Float.valueOf(dGram.substring(last + 1, sub_last))
+						.floatValue();
+				last = sub_last;
+				intensity = Float.valueOf(dGram.substring(last + 1, maxLen))
 					.floatValue();
+			}
 
 			Touches curTouch = new Touches(timeStamp, finger, xPos, yPos,
 					intensity);
+			
 			return curTouch;
 		} else {
 			return null;
