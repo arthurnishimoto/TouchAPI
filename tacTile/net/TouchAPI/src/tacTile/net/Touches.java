@@ -48,6 +48,21 @@ public class Touches {
 	float xPos, yPos, intensity;
 
 	/**
+	 * Create a new Touches by passing in another Touch
+	 *    
+	 * @param srcTouch
+	 *            the original touch to be copied 
+	 *                    
+	 */
+	public Touches( Touches srcTouch) {
+		this.timeStamp = srcTouch.timeStamp;
+		this.finger = srcTouch.finger;
+		this.xPos = srcTouch.xPos;
+		this.yPos = srcTouch.yPos;
+		this.intensity = srcTouch.intensity;
+	}
+	
+	/**
 	 * Create a new Touches by passing in 
 	 *    
 	 * @param timeStamp
@@ -61,7 +76,7 @@ public class Touches {
 	 * @param intensity 
 	 *            the intensity of the touch Range btn 0 and 1        
 	 */
-	Touches( long timeStamp, int finger, float xPos, float yPos, float intensity) {
+	public Touches( long timeStamp, int finger, float xPos, float yPos, float intensity) {
 		this.timeStamp = timeStamp;
 		this.finger = finger;
 		this.xPos = xPos;
@@ -83,7 +98,7 @@ public class Touches {
 	 * @param intensity 
 	 *            the intensity of the touch Range btn 0 and 1        
 	 */
-	Touches( ) {
+	public Touches( ) {
 		this.timeStamp = 0;
 		this.finger = 0;
 		this.xPos = 0;
@@ -122,13 +137,23 @@ public class Touches {
 	public float getYPos() {
 		return yPos;
 	}
-
+	
 	/**
 	 * Returns the intensity for the touch
 	 * @return float
 	 */
 	public float getIntensity() {
 		return intensity;
+	}
+
+	/**
+	 * Sets a timestamp for a touch
+	 * 
+	 * @param time 
+	 *            the new time stamp
+	 */
+	public void setFingerID(int id) {
+		finger = id;
 	}
 	
 	/**
@@ -137,7 +162,7 @@ public class Touches {
 	 * @param time 
 	 *            the new time stamp
 	 */
-	protected void setTimeStamp(long time) {
+	public void setTimeStamp(long time) {
 		timeStamp = time;
 	}
 
@@ -147,7 +172,7 @@ public class Touches {
 	 * @param xPosition
 	 *            the new xPosition
 	 */
-	protected void setXPos( float xPosition) {
+	public void setXPos( float xPosition) {
 		xPos = xPosition;
 	}
 
@@ -157,7 +182,7 @@ public class Touches {
 	 * @param yPosition
 	 *            the new yPosition
 	 */
-	protected void setYPos( float yPosition ) {
+	public void setYPos( float yPosition ) {
 		yPos = yPosition;
 	}
 
@@ -167,7 +192,7 @@ public class Touches {
 	 * @param newIntensity
 	 *            the new Intensity
 	 */
-	protected void setIntensity( float newIntensity) {
+	public void setIntensity( float newIntensity) {
 		intensity = newIntensity;
 	}
 	

@@ -1,6 +1,6 @@
 /**
  * (./) UDP.java v0.2 06/01/26
- * (by) Douglas Edric Stanley & Cousot StÃ©phane
+ * (by) Douglas Edric Stanley & Cousot Stéphane
  * (cc) some right reserved
  *
  * Part of the Processing Libraries project, for the Atelier Hypermedia, art 
@@ -63,7 +63,7 @@ import processing.core.*;
  * </small>
  *
  * @version 0.1
- * @author Cousot StÃ©phane - stef@ubaa.net
+ * @author Cousot Stéphane - stef@ubaa.net
  * @author Douglas Edric Stanley - http://www.abstractmachine.net/
  */
 public class UDP implements Runnable {
@@ -73,7 +73,7 @@ public class UDP implements Runnable {
 	DatagramSocket ucSocket		= null;
 	MulticastSocket mcSocket	= null;
 	
-	boolean log			= false;	// enable/disable output log
+	boolean debug		= false;	// enable/disable output debug
 	boolean listen		= false;	// true, if the socket waits for packets
 	int timeout			= 0;		// reception timeout > 0=infinite timeout
 	int size			= 65507;	// the socket buffer size in bytes
@@ -92,7 +92,7 @@ public class UDP implements Runnable {
 	String receiveHandler		= "receive";
 	String timeoutHandler		= "timeout";
 	
-	// the log "header" to be set for debugging. Because log is disable by 
+	// the debug "header" to be set for debugging. Because debug is disable by 
 	// default, this value is automatically replaced by the principal socket 
 	// settings when a new instance of UDP is created.
 	String header		= "";
@@ -173,13 +173,13 @@ public class UDP implements Runnable {
 			
 			if ( !addr.isMulticastAddress() ) {
 				ucSocket = new DatagramSocket( port, host );	// as broadcast
-				log( "bound socket to host:"+address()+", port: "+port() );
+				debug( "bound socket to host:"+address()+", port: "+port() );
 			}
 			else {							
 				mcSocket = new MulticastSocket( port );			// as multicast
 				mcSocket.joinGroup( addr );
 				this.group = addr;
-				log( "bound multicast socket to host:"+address()+
+				debug( "bound multicast socket to host:"+address()+
 					 ", port: "+port()+", group:"+group );
 			}
 		}
@@ -231,7 +231,7 @@ public class UDP implements Runnable {
 			if ( isMulticast() ) {
 				if ( group!=null ) {
 					mcSocket.leaveGroup( group );
-					log( "leave group < address:"+group+" >" );
+					debug( "leave group < address:"+group+" >" );
 				}
 				mcSocket.close();
 				mcSocket = null;
@@ -246,7 +246,7 @@ public class UDP implements Runnable {
 		}
 		catch( SecurityException e ) {;}
 		finally {
-			log( "close socket < port:"+port+", address:"+ip+" >\n" );
+			debug( "close socket < port:"+port+", address:"+ip+" >\n" );
 		}
 	}
 	
@@ -396,7 +396,7 @@ public class UDP implements Runnable {
 			else ucSocket.send( pa );
 			
 			success = true;
-			log( "send packet -> address:"+pa.getAddress()+
+			debug( "send packet -> address:"+pa.getAddress()+
 				 ", port:"+ pa.getPort() +
 				", length: "+ pa.getLength()
 				 );
@@ -558,7 +558,7 @@ public class UDP implements Runnable {
 			}
 
 			
-			log( "receive packet <- from "+pa.getAddress()+
+			debug( "receive packet <- from "+pa.getAddress()+
 				 ", port:"+ pa.getPort() +
 				 ", length: "+ pa.getLength()
 				 );
@@ -852,27 +852,27 @@ public class UDP implements Runnable {
 	}
 	
 	/**
-	 * Enable or disable output process log.
+	 * Enable or disable output process debug.
 	 */
-	public void log( boolean on ) {
-		log = on;
+	public void debug( boolean on ) {
+		debug = on;
 	}
 	
 	/**
 	 * Output message to the standard output stream.
 	 * @param out	the output message
 	 */
-	private void log( String out ) {
+	private void debug( String out ) {
 		
 		Date date = new Date();
 		
 		// define the "header" to retrieve at least the principal socket
 		// informations : the host/port where the socket is bound.
-		if ( !log && header.equals("") )
+		if ( !debug && header.equals("") )
 			header = "-- UDP session started at "+date+" --\n-- "+out+" --\n";
 		
 		// print out
-		if ( log ) {
+		if ( debug ) {
 			
 			String pattern	= "yy-MM-dd HH:mm:ss.S Z";
 			String sdf		= new SimpleDateFormat(pattern).format( date );
@@ -889,3 +889,4 @@ public class UDP implements Runnable {
 		System.err.println( err );
 	}
 }
+
