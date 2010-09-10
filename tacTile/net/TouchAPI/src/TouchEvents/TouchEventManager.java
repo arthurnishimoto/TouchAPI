@@ -103,7 +103,35 @@ public class TouchEventManager {
             addNewTouches( newUp, newDown, newMoved, newAllTouches );            
             
           } //end empty managed list check
-     
+          
+          if( tacTile.hasTouchListener() ){
+        	  TouchListener touchListener = tacTile.getTouchListener();
+	          ArrayList downList = getTouchesDown();
+	          ArrayList moveList = getTouchesMoved();
+	          ArrayList upList = getTouchesUp();
+	          ArrayList holdList = tacTile.getOldManagedList();
+	          
+	          for( i = 0; i < downList.size(); i++ ){
+	        	  Touches t = (Touches)downList.get(i);
+	        	  t.setGesture(TouchAPI.GESTURE_DOWN);
+	        	  touchListener.onInput(t);
+	          }// for
+	          for( i = 0; i < holdList.size(); i++ ){
+	        	  Touches t = (Touches)holdList.get(i);
+	        	  t.setGesture(TouchAPI.GESTURE_HOLD);
+	        	  touchListener.onInput(t);
+	          }// for
+	          for( i = 0; i < moveList.size(); i++ ){
+	        	  Touches t = (Touches)moveList.get(i);
+	        	  t.setGesture(TouchAPI.GESTURE_MOVE);
+	        	  touchListener.onInput(t);
+	          }// for
+	          for( i = 0; i < upList.size(); i++ ){
+	        	  Touches t = (Touches)upList.get(i);
+	        	  t.setGesture(TouchAPI.GESTURE_UP);
+	        	  touchListener.onInput(t);
+	          }// for
+          }
 	   }//process
 	
 	   public void lostTouch( Touches touch ){
@@ -460,32 +488,33 @@ public class TouchEventManager {
 	     ArrayList up = new ArrayList();
 	     ArrayList down = new ArrayList();
 	     ArrayList moved = new ArrayList();
+	     TouchListener touchListener = tacTile.getTouchListener();;
 	     
 	     //merging up
 	     for(int i = 0; i < touchesUp.size(); i++){
-	        up.add(touchesUp.get(i)); 
+	        up.add(touchesUp.get(i));
 	     }
 	     
 	     for(int i = 0; i < newUp.size(); i++ ){
-	        up.add(newUp.get(i)); 
+	        up.add(newUp.get(i));
 	     }
 	     
 	     //merging down
 	     for(int i = 0; i < touchesDown.size(); i++){
-	        down.add(touchesDown.get(i)); 
+	        down.add(touchesDown.get(i));
 	     }
 	     
 	     for(int i = 0; i < newDown.size(); i++ ){
-	        down.add(newDown.get(i)); 
+	        down.add(newDown.get(i));
 	     }
 
 	     //merging moved
 	     for(int i = 0; i < touchesMoved.size(); i++){
-	        moved.add(touchesMoved.get(i)); 
+	        moved.add(touchesMoved.get(i));
 	     }
 	     
 	     for(int i = 0; i < newMoved.size(); i++ ){
-	        moved.add(newMoved.get(i)); 
+	        moved.add(newMoved.get(i));
 	     }
 	   
 	    touchesUp = up;
@@ -563,6 +592,22 @@ public class TouchEventManager {
 	      return temp; 
 	   }
 	   
+	  /**
+	   * Adds a touch to one of the event lists.
+	   * 
+	   * @param gesture Indicates which list to add to ( 0 = down, 1 = move, 2 = up )
+	   * @param touch Touch to be added.
+	   */
+	   public void addTouch( int gesture, Touches touch ){
+		   switch(gesture){
+		   case(0): // Down
+			   touchesDown.add(touch); break;
+		   case(1): // Move
+			   touchesMoved.add(touch); break;
+		   case(2): // Up
+			   touchesUp.add(touch); break;
+		   }// switch
+	   }// addTouch
 	   
 	   void setTouchMovedDuplicates( boolean input ){
 	     touchMovedDuplicates = input; 

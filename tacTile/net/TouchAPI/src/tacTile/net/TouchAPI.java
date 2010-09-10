@@ -142,33 +142,48 @@ import TouchEvents.*;
  * </b>
  * </ul>
  * <br>
+ * </ul>
+ * <li><b>TouchListener:</b>
  * <ul>
- * <i>managedTouchList info: </i><br>
- * <b> {@link TouchAPI#managedListSize()} &
- * {@link TouchAPI#managedListIsEmpty()}<br>
+ * TouchListener is an interface that the user can implement in order to receive
+ * touch events as they occur. The user must create a class that implements the
+ * TouchListener class. Once this is done an instance of that class must be passed
+ * to the TouchAPI via the setTouchListener() method.
+ * <br>
  * </b>
  * </ul>
  * <br>
  * </ul> </ul>
  * 
- * @version 0.1
+ * @version 0.2
  * @author Dennis Chau - Koracas@gmail.com<br>
+ * @author Arthur Nishimoto - anishimoto42@gmail.com<br>
  */
 public class TouchAPI {
+	TouchListener touchListener;
+
+	// Supported gestures
+	public final static int GESTURE_DOWN = 0;
+	public final static int GESTURE_MOVE = 1;
+	public final static int GESTURE_UP = 2;
+	public final static int GESTURE_HOLD = 3;
 
 	int port_tcp; // port to send the TCP msg in order to start sending
 	// datagrams
-	int port_udp; // port open where to recieve UDP msgs.
+	int port_udp; // port open where to receive UDP msgs.
 	String serverName; // machine where the datagrams will come from
 
 	Client clientForServer; // The Client obj that will comm with Tac Tile
-	UDP socketForData; // The udp socket that will recieve the data
+	UDP socketForData; // The udp socket that will receive the data
 
 	// the Array List that will hold all raw touches
 	ArrayList<Touches> dataTouchList = new ArrayList<Touches>();
 
 	// the Array List that will hold all the managed touches
 	ArrayList<Touches> managedTouchList = new ArrayList<Touches>();
+
+	// the Array List that holds gestures
+	ArrayList<String> gestureList = new ArrayList<String>();
 
 	private final Lock listLock = new ReentrantLock(); // Lock to ensure that
 	// threads do not cause
@@ -183,11 +198,11 @@ public class TouchAPI {
 	boolean server = false; // true if there is server info
 	boolean listen = false; // true, if the socket waits for packets
 
-	// the parent object (could be an application, a componant, etc...)
+	// the parent object (could be an application, a component, etc...)
 	Object owner = null;
 
 	// The "receive handler" methods name. This is the method name
-	// that the UDP will call when the socket recieves data.
+	// that the UDP will call when the socket receives data.
 	String modHandler = "__tacTile_Polling__";
 	String timeOutHandler = "__tacTile_TimeOut__";
 
@@ -227,8 +242,8 @@ public class TouchAPI {
 	 * The socket where data from TacTile should be sent
 	 */
 	private static final int UDP_PORT = 7075;
-	
-	//YAS
+
+	// YAS
 	TouchEventManager tm;
 
 	// //////////////////////////// constructors ////////////////////////////
@@ -378,9 +393,9 @@ public class TouchAPI {
 		// Tell port to start polling
 		udpListen(true);
 		log("Socket is listening." + "\n");
-		
-		//Yas
-		
+
+		// Yas
+
 		tm = new TouchEventManager((PApplet) owner, this);
 		tm.setMaxListSize(dataTouchListSize);
 
@@ -588,9 +603,10 @@ public class TouchAPI {
 		dGram = dGram.substring(0, firstSpace);
 
 		String flag;
-		int finger;
+		int finger, gesture;
 		long timeStamp;
 		float xPos, yPos, intensity;
+		float xWidth, yWidth;
 
 		int start, last, sub_last;
 		int maxLen = dGram.length() - 1;
@@ -600,7 +616,8 @@ public class TouchAPI {
 		sub_last = start;
 		flag = dGram.substring(start + 1, start + 2);
 
-		// Only message a d flag are useful. //
+		// Only message d,g,p,z flags are useful for TacTile. //
+		// q, l flags useful for PQLabs - Arthur 5/24/2010
 		if (flag.compareTo("d") == 0 || flag.compareTo("g") == 0) {
 			log("MSG received : <" + dGram + ">\n");
 
@@ -637,19 +654,156 @@ public class TouchAPI {
 				yPos = Float.valueOf(dGram.substring(last + 1, sub_last))
 						.floatValue();
 				last = sub_last;
-				intensity = Float.valueOf(dGram.substring(last + 1, maxLen))
-						.floatValue();
+				if (!dGram.substring(last + 1, maxLen).isEmpty())
+					intensity = Float
+							.valueOf(dGram.substring(last + 1, maxLen))
+							.floatValue();
+				else
+					intensity = 0;
 			}
 
 			Touches curTouch = new Touches(timeStamp, finger, xPos, yPos,
 					intensity);
-
 			return curTouch;
 		} else {
+			// PQLabs touch point
+			if (flag.compareTo("q") == 0) {
+				log("PQ MSG received : <" + dGram + ">\n");
+
+				// time stamp //
+				timeStamp = System.currentTimeMillis();
+
+				last = sub_last;
+
+				// finger //
+				start = dGram.indexOf(":", last + 1);
+				sub_last = start;
+				last = sub_last;
+				// data string may contain non-integer, read and convert
+				start = dGram.indexOf(",", last + 1);
+				sub_last = start;
+				finger = (int) Float.parseFloat(dGram.substring(last + 1,
+						sub_last));
+				last = sub_last;
+
+				// x pos //
+				start = dGram.indexOf(",", last + 1);
+				sub_last = start;
+				xPos = Float.valueOf(dGram.substring(last + 1, sub_last))
+						.floatValue();
+				last = sub_last;
+
+				// y pos //
+				start = dGram.indexOf(",", last + 1);
+				if (start == -1) { // there is no intensity in the dgram
+					yPos = Float.valueOf(dGram.substring(last + 1, sub_last))
+							.floatValue();
+
+					// xWidth
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					xWidth = Float.parseFloat(dGram.substring(last + 1,
+							sub_last));
+					last = sub_last;
+
+					// yWidth
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					yWidth = Float.parseFloat(dGram.substring(last + 1,
+							sub_last));
+					last = sub_last;
+
+					// gesture
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					gesture = Integer.parseInt(dGram
+							.substring(last + 1, maxLen));
+					last = sub_last;
+
+					intensity = 0;
+
+				} else { // there is intensity in the dgram
+					sub_last = start;
+					yPos = Float.valueOf(dGram.substring(last + 1, sub_last))
+							.floatValue();
+					last = sub_last;
+
+					// xWidth
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					xWidth = Float.parseFloat(dGram.substring(last + 1,
+							sub_last));
+					last = sub_last;
+
+					// yWidth
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					yWidth = Float.parseFloat(dGram.substring(last + 1,
+							sub_last));
+					last = sub_last;
+
+					// gesture
+					start = dGram.indexOf(",", last + 1);
+					sub_last = start;
+					gesture = Integer.parseInt(dGram.substring(last + 1,
+							sub_last));
+					last = sub_last;
+
+					if (!dGram.substring(last + 1, maxLen).isEmpty())
+						intensity = Float.valueOf(
+								dGram.substring(last + 1, maxLen)).floatValue();
+					else
+						intensity = 0;
+				}
+
+				Touches curTouch = new Touches(timeStamp, finger, xPos, yPos,
+						intensity);
+				curTouch.setXWidth(xWidth);
+				curTouch.setYWidth(yWidth);
+				curTouch.setGesture(gesture);
+
+				if (touchListener != null) {
+					touchListener.onInput(curTouch);
+				}// if listener
+
+				tm.addTouch(gesture, curTouch);
+			}
+
+			// Temp flag for gesture testing
+			if (flag.compareTo("l") == 0) {
+				log("PQ Gesture MSG received : <" + dGram + ">\n");
+
+				listLock.lock(); // block until condition holds
+				try {
+					gestureList.add(dGram);
+				} finally {
+					listLock.unlock();
+				}
+			}
 			return null;
 		}
 	}
 
+	/**
+	 * Register a class to handle event call-backs
+	 * 
+	 * @param t A class implementing TouchListener
+	 */
+	public void setTouchListener(TouchListener t) {
+		touchListener = t;
+	}// setTouchListener
+
+	public TouchListener getTouchListener() {
+		return touchListener;
+	}// getTouchListener
+	
+	public boolean hasTouchListener() {
+		if( touchListener != null )
+			return true;
+		else
+			return false;
+	}// hasTouchListener
+	
 	/**
 	 * Process data that is transfered into the socket. Creates a touch out of
 	 * it and stores it in the dataTouchList and managedTouchList variable.
@@ -904,8 +1058,8 @@ public class TouchAPI {
 				listLock.lock(); // block until condition holds
 				try {
 					managedTouchList.add(newTouch);
-					//yas
-					//tm.checkTouch(newTouch);
+					// yas
+					// tm.checkTouch(newTouch);
 				} finally {
 					listLock.unlock();
 				}
@@ -933,9 +1087,9 @@ public class TouchAPI {
 
 				if (curTimeStamp - touchTimeStamp < touchLifeTime) {
 					tempManagedList.add(temp);
-				}else{
-					//yas
-					//tm.lostTouch( temp );
+				} else {
+					// yas
+					// tm.lostTouch( temp );
 				}
 			}
 
@@ -946,7 +1100,10 @@ public class TouchAPI {
 	}
 
 	/**
-	 * Returns a copy of the managedTouchList.
+	 * Returns a copy of the new managed list which gives more accurate touchID
+	 * tracking at the cost of sensitivity/number of touches and also calls
+	 * process() so you don't have to call it separately if you are using
+	 * getTouch(up/down/drag) for gestures .
 	 * 
 	 * @return ArrayList <Touches>
 	 */
@@ -954,45 +1111,95 @@ public class TouchAPI {
 		tm.process();
 		return tm.getAllTouches();
 	}
-	
-	//YAS
-	public ArrayList<Touches> getNewTouches(){
-		return tm.getTouchesDown();
-	}
-	
-	public ArrayList<Touches> getExpiredTouches(){
-		return tm.getTouchesUp();
-	}
-	
-	public ArrayList<Touches> getMovedTouches(){
-		return tm.getTouchesMoved();
-	}
-	
-	public ArrayList<Touches> getTouchesMoved(){
-		return tm.getTouchesMoved();
-	}
-	
-	public ArrayList<Touches> getTouchesUp(){
-		return tm.getTouchesUp();
-	}
-	
-	public ArrayList<Touches> getTouchesDown(){
-		return tm.getTouchesDown();
-	}
-	
+
+	// YAS
 	/**
-	 * Returns a copy of the old managedTouchList.
+	 * Returns a list of new touches. Same as getTouchesDown().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getNewTouches() {
+		return tm.getTouchesDown();
+	}
+
+	/**
+	 * Returns a list of recently expired touches. Same as getTouchesUp().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getExpiredTouches() {
+		return tm.getTouchesUp();
+	}
+
+	/**
+	 * Returns a list of recent touch moves. Same as getTouchesMoved().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getMovedTouches() {
+		return tm.getTouchesMoved();
+	}
+
+	/**
+	 * Returns a list of recent touch moves. Same as getMovedTouches().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getTouchesMoved() {
+		return tm.getTouchesMoved();
+	}
+
+	/**
+	 * Returns a list of recent touch ups. Same as getExpiredTouches().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getTouchesUp() {
+		return tm.getTouchesUp();
+	}
+
+	/**
+	 * Returns a list of recent touch downs. Same as getNewTouches().
+	 * process() or getManagedList() should be called before this.
+	 * 
+	 * @return ArrayList <Touches>
+	 */
+	public ArrayList<Touches> getTouchesDown() {
+		return tm.getTouchesDown();
+	}
+
+	/**
+	 * Returns a copy of the old managedTouchList which does not track touchIDs
+	 * as well, but gives more touches for better sensitivity. This does not
+	 * call process() for getTouch(up/down/move).
 	 * 
 	 * @return ArrayList <Touches>
 	 */
 	public ArrayList<Touches> getOldManagedList() {
-		ArrayList<Touches> temp;	
-		listLock.lock();  // block until condition holds
-	    try {
-	    	temp = new ArrayList<Touches>(managedTouchList);
-	    } finally {
-	    	listLock.unlock();
-	    }
+		ArrayList<Touches> temp;
+		listLock.lock(); // block until condition holds
+		try {
+			temp = new ArrayList<Touches>(managedTouchList);
+		} finally {
+			listLock.unlock();
+		}
+		return temp;
+	}
+
+	public ArrayList<String> getGestureList() {
+		ArrayList<String> temp;
+		listLock.lock(); // block until condition holds
+		try {
+			temp = new ArrayList<String>(gestureList);
+		} finally {
+			gestureList.clear();
+			listLock.unlock();
+		}
 		return temp;
 	}
 
@@ -1003,12 +1210,12 @@ public class TouchAPI {
 	 */
 	public int managedListSize() {
 		int size = 0;
-		listLock.lock();  // block until condition holds
-	    try {
-	    	size = managedTouchList.size();
-	    } finally {
-	    	listLock.unlock();
-	    }
+		listLock.lock(); // block until condition holds
+		try {
+			size = managedTouchList.size();
+		} finally {
+			listLock.unlock();
+		}
 		return size;
 	}
 
@@ -1019,19 +1226,26 @@ public class TouchAPI {
 	 */
 	public boolean managedListIsEmpty() {
 		boolean empty = true;
-		listLock.lock();  // block until condition holds
-	    try {
-	    	empty = managedTouchList.isEmpty();
-	    } finally {
-	    	listLock.unlock();
-	    }
+		listLock.lock(); // block until condition holds
+		try {
+			empty = managedTouchList.isEmpty();
+		} finally {
+			listLock.unlock();
+		}
 		return empty;
-		
-		
+
 	}
-	
-	//yas
-	public void process(){
+
+	// yas
+	/**
+	 * Required to be called before any calls related to the touch downs, ups,
+	 * or moves. Also used for more accurate tracking of fingerIDs at the cost
+	 * of maximum number of possible touches. Should not be called with
+	 * getManagedList() since it already calls process().
+	 * 
+	 * 
+	 */
+	public void process() {
 		tm.process();
 	}
 
@@ -1044,17 +1258,29 @@ public class TouchAPI {
 	public void setTouchLifeTime(long time) {
 		touchLifeTime = time;
 	}
-	
-	//YAS
-	public void setResidueLifeTime(float time){
-		tm.setResidueLifetime((int)time);
+
+	// YAS
+	/**
+	 * Set the residue lifetime of a touch.
+	 * 
+	 * @param time
+	 *            the lifetime of a touch in milliseconds. Default value is 150.
+	 */
+	public void setResidueLifeTime(float time) {
+		tm.setResidueLifetime((int) time);
 	}
-	
-	public void setResidueRadius(float r){
+
+	/**
+	 * Sets the radius where nearby touches will be considered the same touch.
+	 * 
+	 * @param r
+	 *            radius in pixels.
+	 */
+	public void setResidueRadius(float r) {
 		tm.setResidueRadius(r);
 	}
 
- 	/**
+	/**
 	 * Output error messages to the standard error stream.
 	 * 
 	 * @param err
@@ -1144,4 +1370,3 @@ public class TouchAPI {
 	}
 
 }
-

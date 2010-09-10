@@ -43,9 +43,10 @@ package tacTile.net;
  */
 public class Touches {
 
-	int finger;
+	int finger, gesture;
 	long timeStamp;
 	float xPos, yPos, intensity;
+	float xWidth, yWidth;
 
 	/**
 	 * Create a new Touches by passing in another Touch
@@ -60,6 +61,7 @@ public class Touches {
 		this.xPos = srcTouch.xPos;
 		this.yPos = srcTouch.yPos;
 		this.intensity = srcTouch.intensity;
+		this.gesture = srcTouch.gesture;
 	}
 	
 	/**
@@ -82,6 +84,7 @@ public class Touches {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.intensity = intensity;
+		this.gesture = -1;
 	}
 
 	/**
@@ -104,6 +107,7 @@ public class Touches {
 		this.xPos = 0;
 		this.yPos = 0;
 		this.intensity = 0;
+		this.gesture = -1;
 	}
 	
 	/**
@@ -146,6 +150,30 @@ public class Touches {
 		return intensity;
 	}
 
+	/**
+	 * Returns the relative x width of the touch
+	 * @return float
+	 */
+	public float getXWidth() {
+		return xWidth;
+	}
+
+	/**
+	 * Returns the relative y width of the touch
+	 * @return float
+	 */
+	public float getYWidth() {
+		return yWidth;
+	}
+	
+	/**
+	 * Returns the type of gesture the touch is
+	 * @return int
+	 */
+	public int getGesture(){
+		return gesture;
+	}
+	
 	/**
 	 * Sets a timestamp for a touch
 	 * 
@@ -196,5 +224,33 @@ public class Touches {
 		intensity = newIntensity;
 	}
 	
+	/**
+	 * Sets xWidth for a touch
+	 *
+	 * @param xW
+	 *            the new x width
+	 */
+	public void setXWidth( float xW ) {
+		xWidth = xW;
+	}
 	
+	/**
+	 * Sets yWidth for a touch
+	 *
+	 * @param yW
+	 *            the new y width
+	 */
+	public void setYWidth( float yW ) {
+		yWidth = yW;
+	}
+	
+	/**
+	 * Sets the gesture type of the touch
+	 * 
+	 * @param g
+	 *            the new gesture
+	 */
+	public void setGesture( int g ){
+		gesture = g;
+	}
 }
