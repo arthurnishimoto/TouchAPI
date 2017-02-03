@@ -221,7 +221,7 @@ public class TouchAPI {
 	/**
 	 * The TCP msg to initiate data transfer
 	 */
-	private static final String MSG_TCP_SEND_DATA = "data_on,";
+	private static final String MSG_TCP_SEND_DATA = "tactile_data_on,";
 
 	/**
 	 * The milliseconds req for the table to realize there are no touches
@@ -654,7 +654,7 @@ public class TouchAPI {
 				yPos = Float.valueOf(dGram.substring(last + 1, sub_last))
 						.floatValue();
 				last = sub_last;
-				if (!dGram.substring(last + 1, maxLen).isEmpty())
+				if (!(dGram.substring(last + 1, maxLen).length() == 0))
 					intensity = Float
 							.valueOf(dGram.substring(last + 1, maxLen))
 							.floatValue();
@@ -749,7 +749,7 @@ public class TouchAPI {
 							sub_last));
 					last = sub_last;
 
-					if (!dGram.substring(last + 1, maxLen).isEmpty())
+					if (!(dGram.substring(last + 1, maxLen).length() == 0))
 						intensity = Float.valueOf(
 								dGram.substring(last + 1, maxLen)).floatValue();
 					else
@@ -1181,13 +1181,19 @@ public class TouchAPI {
 	 * @return ArrayList <Touches>
 	 */
 	public ArrayList<Touches> getOldManagedList() {
-		ArrayList<Touches> temp;
+		ArrayList<Touches> temp = new ArrayList<Touches>();
+		/*
 		listLock.lock(); // block until condition holds
 		try {
 			temp = new ArrayList<Touches>(managedTouchList);
 		} finally {
 			listLock.unlock();
 		}
+		*/
+		temp.addAll(getTouchesDown());
+		temp.addAll(getTouchesMoved());
+		temp.addAll(getTouchesUp());
+		
 		return temp;
 	}
 
